@@ -11,10 +11,10 @@ public class MatrixSolver {
 
         Matrix matrix = new Matrix(data);
 
-        matrix = Matrix.clearColumn(matrix, 0, 0);
-        matrix = Matrix.clearColumn(matrix, 1, 1);
-        matrix = Matrix.clearColumn(matrix, 2, 2);
+        matrix.clearColumn(0,0);
+        matrix.clearColumn(1,1);
+        matrix.clearColumn(2,2);
 
-        Matrix.printMatrix(matrix);
+        matrix.print();
     }
 }
