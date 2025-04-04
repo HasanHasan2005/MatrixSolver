@@ -1,22 +1,19 @@
 package src;
 
 public class Fraction {
-    public static final int[] PRIMES = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31,
-            37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97};
     int numerator;
     int denominator;
 
     public Fraction(int numerator, int denominator) {
-        if (denominator == 0) {
-            throw new IllegalArgumentException("Zero denominator");
-        }
+        if (denominator == 0) {throw new IllegalArgumentException("Zero denominator");}
+
         this.numerator = (denominator < 0) ? -numerator : numerator;
         this.denominator = (numerator == 0) ? 1 : Math.abs(denominator);
     }
 
     public Fraction(int numerator) {
         this.numerator = numerator;
-        this.denominator = 1;
+        denominator = 1;
     }
 
     public int sign() {
@@ -27,17 +24,20 @@ public class Fraction {
 
     int getDenominator() {return denominator;}
 
+    public Fraction getValue() {return new Fraction(numerator, denominator);}
+
+
     public String toString() {
         return "<" + numerator + " / " + denominator + ">";
     }
 
-    public static int[] getFactors(int num) {
+    public static int[] getFactors(int num, int[] primes) {
         int primeIndex = 0;
-        int[] prime_factors = new int[PRIMES.length];
+        int[] prime_factors = new int[primes.length];
 
-        while (primeIndex < PRIMES.length && PRIMES[primeIndex] <= num) {
-            if (num % PRIMES[primeIndex] == 0) {
-                num = num / PRIMES[primeIndex];
+        while (primeIndex < primes.length && primes[primeIndex] <= num) {
+            if (num % primes[primeIndex] == 0) {
+                num = num / primes[primeIndex];
                 prime_factors[primeIndex] += 1;
             } else {
                 primeIndex += 1;
@@ -54,14 +54,16 @@ public class Fraction {
 
         int sign = (numerator < 0 ? -1 : 1) * (denominator < 0 ? -1 : 1);
 
-        int[] num_factors = getFactors(num);
-        int[] den_factors = getFactors(den);
+        int[] primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31,
+                37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97};
+        int[] num_factors = getFactors(num, primes);
+        int[] den_factors = getFactors(den, primes);
 
         for (int i = 0; i < 20; i++) {
             int common_term = Math.min(num_factors[i], den_factors[i]);
             if (common_term > 0) {
-                num = (int)(num / Math.pow(PRIMES[i], common_term));
-                den = (int)(den / Math.pow(PRIMES[i], common_term));
+                num = (int)(num / Math.pow(primes[i], common_term));
+                den = (int)(den / Math.pow(primes[i], common_term));
             }
         }
         numerator = num * sign;
@@ -74,17 +76,19 @@ public class Fraction {
         return temp;
     }
 
+
     public Fraction getAddInverse() {return new Fraction(-numerator, denominator).getSimplified();}
 
     public void invertAdditive() {numerator = -numerator;}
 
     public Fraction getMulInverse() {return new Fraction(denominator, numerator).getSimplified();}
 
-    public void invertMultiplicitive() {
+    public void invertMultiplicative() {
         int temp = denominator;
         denominator = numerator;
         numerator = temp;
     }
+
 
     public void add(Fraction frac) {
         this.numerator = this.numerator * frac.getDenominator() + this.denominator * frac.getNumerator();
@@ -106,48 +110,31 @@ public class Fraction {
         multiply(frac.getMulInverse());
     }
 
-
-
-
-    public static Fraction add(Fraction frac1, Fraction frac2) {
-        int numerator = frac1.getNumerator() * frac2.getDenominator() + frac1.getDenominator() * frac2.getNumerator();
-        int denominator = frac1.getDenominator() * frac2.getDenominator();
-
-        return new Fraction(numerator, denominator).getSimplified();
+    public static Fraction add(Fraction scalar1, Fraction scalar2) {
+        Fraction temp = scalar1.getValue();
+        temp.add(scalar2);
+        return temp;
     }
 
-    public static Fraction subtract(Fraction frac1, Fraction frac2) {
-        int numerator = frac1.getNumerator() * frac2.getDenominator() - frac1.getDenominator() * frac2.getNumerator();
-        int denominator = frac1.getDenominator() * frac2.getDenominator();
-
-        return new Fraction(numerator, denominator).getSimplified();
+    public static Fraction subtract(Fraction scalar1, Fraction scalar2) {
+        Fraction temp = scalar1.getValue();
+        temp.subtract(scalar2);
+        return temp;
     }
 
-    public static Fraction multiply(Fraction frac1, Fraction frac2) {
-        int numerator = frac1.getNumerator() * frac2.getNumerator();
-        int denominator = frac1.getDenominator() * frac2.getDenominator();
-
-        return new Fraction(numerator, denominator).getSimplified();
+    public static Fraction multiply(Fraction scalar1, Fraction scalar2) {
+        Fraction temp = scalar1.getValue();
+        temp.multiply(scalar2);
+        return temp;
     }
 
-    public static Fraction scale(Fraction frac, int scalar) {
-        int numerator = frac.getNumerator() * scalar;
-
-        return new Fraction(numerator, frac.getDenominator()).getSimplified();
+    public static Fraction divide(Fraction scalar1, Fraction scalar2) {
+        Fraction temp = scalar1.getValue();
+        temp.divide(scalar2);
+        return temp;
     }
 
-    public static Fraction divide(Fraction frac1, Fraction frac2) {
-        int numerator = frac1.getNumerator() * frac2.getDenominator();
-        int denominator = frac1.getDenominator() * frac2.getNumerator();
 
-        return new Fraction(numerator, denominator).getSimplified();
-    }
-
-    public static Fraction divide(Fraction frac, int scalar) {
-        int denominator = frac.getDenominator() * scalar;
-
-        return new Fraction(frac.getNumerator(), denominator).getSimplified();
-    }
 
     public int compareTo(Fraction frac) {
         int comparator = this.getNumerator() * frac.getDenominator() - this.getDenominator() * frac.getNumerator();
@@ -191,6 +178,4 @@ public class Fraction {
         }
         return new Fraction(numerator, denominator).getSimplified();
     }
-
-
 }

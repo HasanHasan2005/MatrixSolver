@@ -11,10 +11,6 @@ public class MatrixSolver {
 
         ArrayMatrix matrix = new ArrayMatrix(data);
 
-        matrix.clearColumn(0,0);
-        matrix.clearColumn(1,1);
-        matrix.clearColumn(2,2);
-
         matrix.print();
     }
 }
