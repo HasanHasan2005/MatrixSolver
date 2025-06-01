@@ -9,8 +9,6 @@ public class MatrixSolver {
                 {new Fraction(6), new Fraction(1), new Fraction(-6), new Fraction(6), new Fraction(7)},
                 {new Fraction(5), new Fraction(5), new Fraction(0), new Fraction(-1), new Fraction(9)}};
 
-        ArrayMatrix matrix = new ArrayMatrix(data);
-
-        matrix.print();
+        Matrix matrix = new Matrix(data);
     }
 }
