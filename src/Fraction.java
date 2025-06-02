@@ -18,7 +18,7 @@ public class Fraction {
     }
 
     public int sign() {
-        return (getNumerator() == 0) ? 0 : (getNumerator() / Math.abs(getNumerator()));
+        return (numerator == 0) ? 0 : (numerator / Math.abs(numerator));
     }
 
     int getNumerator() {return numerator;}
@@ -43,8 +43,12 @@ public class Fraction {
     }
 
     private void simplify() {
+        if (numerator == 0) {
+            denominator = 1;
+            return;
+        }
 
-        int sign = (numerator >= 0) ? 1 : -1;
+        int sign = (numerator > 0) ? 1 : -1;
         sign = (denominator > 0) ? sign : -sign;
 
         numerator = Math.abs(numerator);
@@ -57,11 +61,11 @@ public class Fraction {
         denominator /= GCD;
     }
 
-    public Fraction getAddInverse() {return new Fraction(-numerator, denominator);}
+    public Fraction getAdditiveInverse() {return new Fraction(-numerator, denominator);}
 
     public void invertAdditive() {numerator = -numerator;}
 
-    public Fraction getMulInverse() {return new Fraction(denominator, numerator);}
+    public Fraction getMultiplicativeInverse() {return new Fraction(denominator, numerator);}
 
     public void invertMultiplicative() {
         int temp = denominator;
@@ -75,7 +79,7 @@ public class Fraction {
         simplify();
     }
 
-    public void subtract(Fraction frac) {add(frac.getAddInverse());}
+    public void subtract(Fraction frac) {add(frac.getAdditiveInverse());}
 
     public void multiply(Fraction frac) {
         this.numerator *= frac.getNumerator();
@@ -83,7 +87,7 @@ public class Fraction {
         simplify();
     }
 
-    public void divide(Fraction frac) {multiply(frac.getMulInverse());}
+    public void divide(Fraction frac) {multiply(frac.getMultiplicativeInverse());}
 
     public static Fraction add(Fraction frac1, Fraction frac2) {
         Fraction temp = frac1.getValue();

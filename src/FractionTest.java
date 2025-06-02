@@ -30,9 +30,9 @@ public class FractionTest {
 
     @Test
     public void testArithmetic() {
-        Fraction frac1 = new Fraction(-20, -16).getAddInverse();
+        Fraction frac1 = new Fraction(-20, -16).getAdditiveInverse();
         Fraction frac2 = new Fraction(-3, -5);
-        Fraction frac3 = new Fraction(2, 1).pow(3).getMulInverse();
+        Fraction frac3 = new Fraction(2, 1).pow(3).getMultiplicativeInverse();
         Fraction frac4 = new Fraction(-7, 8);
 
         Fraction res = Fraction.add(Fraction.multiply(frac1, frac2), Fraction.multiply(frac3, frac4));

@@ -3,44 +3,65 @@ package src;
 public class Matrix {
 
     private final Fraction[][] matrix;
-    private final int m;
-    private final int n;
+    private final int numRows;
+    private final int numCols;
+
+    public Matrix(int numRows, int numCols, Fraction defaultVal) {
+        this.numRows = numRows;
+        this.numCols = numCols;
+
+        this.matrix = new Fraction[numRows][numCols];
+
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                matrix[i][j] = defaultVal.getValue();
+            }
+        }
+
+    }
 
     public Matrix(Fraction[][] matrix) {
-        m = matrix.length;
-        n = matrix[0].length;
+        numRows = matrix.length;
+        numCols = matrix[0].length;
 
-        this.matrix = new Fraction[m][n];
+        this.matrix = new Fraction[numRows][numCols];
 
-        for (int i = 0; i < m; i++) {
-            System.arraycopy(matrix[i], 0, this.matrix[i], 0, n);
+        for (int i = 0; i < numRows; i++) {
+            System.arraycopy(matrix[i], 0, this.matrix[i], 0, numCols);
         }
     }
 
-    public int numRows() {return m;}
+    public int numRows() {return numRows;}
 
-    public int numColumns() {return n;}
+    public int numColumns() {return numCols;}
 
-    public int numEntries() {return m * n;}
+    public int numEntries() {return numRows * numCols;}
 
     public Fraction[][] getValues() {
-        Fraction[][] temp = new Fraction[m][n];
-        for (int i = 0; i < m; i++) {
-            System.arraycopy(matrix[i], 0, temp[i], 0, n);
+        Fraction[][] temp = new Fraction[numRows][numCols];
+        for (int i = 0; i < numRows; i++) {
+            System.arraycopy(matrix[i], 0, temp[i], 0, numCols);
         }
         return temp;
     }
 
-
     public Fraction[] getRow(int rowNum) {
-        Fraction[] temp = new Fraction[m];
-        System.arraycopy(temp, 0, matrix[rowNum], 0, n);
+        Fraction[] temp = new Fraction[numCols];
+        System.arraycopy(temp, 0, matrix[rowNum], 0, numCols);
+        return temp;
+    }
+
+    public Fraction[] getColumn(int colNum) {
+        Fraction[] temp = new Fraction[numRows];
+        for (int i = 0; i < numRows; i++) {
+            temp[i] = matrix[i][colNum];
+        }
         return temp;
     }
 
     public Fraction[] getRowScaledUp(int rowNum, Fraction scalar) {
-        Fraction[] temp = new Fraction[m];
-        for (int i = 0; i < n; i++) {
+        Fraction[] temp = new Fraction[numRows];
+        for (int i = 0; i < numCols; i++) {
             temp[i] = Fraction.multiply(matrix[rowNum][i], scalar);
         }
         return temp;
@@ -51,21 +72,16 @@ public class Matrix {
     }
 
     public Fraction[] getRowScaledDown(int rowNum, Fraction scalar) {
-        Fraction[] temp = new Fraction[m];
-        for (int i = 0; i < n; i++) {
-            temp[i] = Fraction.divide(matrix[rowNum][i], scalar);
-        }
-        return temp;
+        return getRowScaledUp(rowNum, scalar.getMultiplicativeInverse());
     }
 
     public Fraction[] getRowScaledDown(int rowNum, int scalar) {
-        return getRowScaledDown(rowNum, new Fraction(scalar));
+        return getRowScaledUp(rowNum, (new Fraction(scalar)).getMultiplicativeInverse());
     }
 
     public Fraction getEntry(int rowNum, int columnNum) {
         return matrix[rowNum][columnNum];
     }
-
 
     public void setRow(int rowIndex, Fraction[] row) {
         if (row.length != numColumns()) {
@@ -74,7 +90,7 @@ public class Matrix {
             throw new IllegalArgumentException("Row index out of bounds");
         }
 
-        System.arraycopy(row, 0, matrix[rowIndex], 0, n);
+        System.arraycopy(row, 0, matrix[rowIndex], 0, numCols);
     }
 
     public void setEntry(int rowIndex, int columnIndex, Fraction entry) {
@@ -86,42 +102,78 @@ public class Matrix {
         matrix[rowIndex][columnIndex] = entry;
     }
 
-
     public void swapRows(int indexRowA, int indexRowB) {
-        Fraction[] temp = new Fraction[n];
+        Fraction[] temp = new Fraction[numCols];
 
-        System.arraycopy(matrix[indexRowA], 0, temp, 0, n);
-        System.arraycopy(matrix[indexRowB], 0, matrix[indexRowA], 0, n);
-        System.arraycopy(temp, 0, matrix[indexRowB], 0, n);
+        System.arraycopy(matrix[indexRowA], 0, temp, 0, numCols);
+        System.arraycopy(matrix[indexRowB], 0, matrix[indexRowA], 0, numCols);
+        System.arraycopy(temp, 0, matrix[indexRowB], 0, numCols);
+    }
+
+    /**
+     * Add
+     */
+
+    public void addRowScaled(int indexRowChanged, Fraction[] rowToAdd, Fraction scalar) {
+        for (int i = 0; i < numCols; i++) {
+            matrix[indexRowChanged][i].add(Fraction.multiply(rowToAdd[i], scalar));
+        }
+    }
+
+    public void addRowScaled(int indexRowChanged, Fraction[] rowToAdd, int scalar) {
+        addRowScaled(indexRowChanged, rowToAdd, new Fraction(scalar));
+    }
+
+    public void addRow(int indexRowChanged, Fraction[] rowToAdd) {
+        addRowScaled(indexRowChanged, rowToAdd, new Fraction(1));
     }
 
 
-
-    public void addRow(int indexRowChanged, Fraction[] rowToAdd) {
-        for (int i = 0; i < numColumns(); i++) {
-            matrix[indexRowChanged][i].add(rowToAdd[i]);
+    public void addRowScaled(int indexRowChanged, int indexRowUnchanged, Fraction scalar) {
+        for (int i = 0; i < numCols; i++) {
+            matrix[indexRowChanged][i].add(Fraction.multiply(matrix[indexRowUnchanged][i], scalar));
         }
+    }
+
+    public void addRowScaled(int indexRowChanged, int indexRowUnchanged, int scalar) {
+        addRowScaled(indexRowChanged, indexRowUnchanged, new Fraction(scalar));
     }
 
     public void addRow(int indexRowChanged, int indexRowUnchanged) {
-        for (int i = 0; i < numColumns(); i++) {
-            matrix[indexRowChanged][i].add(matrix[indexRowUnchanged][i]);
-        }
+        addRowScaled(indexRowChanged, indexRowUnchanged, new Fraction(1));
+    }
+
+    /**
+     * Subtract rows
+     */
+
+    public void subtractRowScaled(int indexRowChanged, Fraction[] rowToAdd, Fraction scalar) {
+        addRowScaled(indexRowChanged, rowToAdd, scalar.getAdditiveInverse());
+    }
+
+    public void subtractRowScaled(int indexRowChanged, Fraction[] rowToAdd, int scalar) {
+        addRowScaled(indexRowChanged, rowToAdd, new Fraction(-scalar));
     }
 
     public void subtractRow(int indexRowChanged, Fraction[] rowToAdd) {
-        for (int i = 0; i < numColumns(); i++) {
-            matrix[indexRowChanged][i].subtract(rowToAdd[i]);
-        }
+        addRowScaled(indexRowChanged, rowToAdd, new Fraction(-1));
+    }
+
+    public void subtractRowScaled(int indexRowChanged, int indexRowUnchanged, Fraction scalar) {
+        addRowScaled(indexRowChanged, indexRowUnchanged, scalar.getAdditiveInverse());
+    }
+
+    public void subtractRowScaled(int indexRowChanged, int indexRowUnchanged, int scalar) {
+        addRowScaled(indexRowChanged, indexRowUnchanged, new Fraction(-scalar));
     }
 
     public void subtractRow(int indexRowChanged, int indexRowUnchanged) {
-        for (int i = 0; i < numColumns(); i++) {
-            matrix[indexRowChanged][i].subtract(matrix[indexRowUnchanged][i]);
-        }
+        addRowScaled(indexRowChanged, indexRowUnchanged, new Fraction(-1));
     }
 
-
+    /**
+     * Scaling Row
+     */
 
     public void scaleUpRow(int indexRow, Fraction scalar) {
         for (int i = 0; i < numColumns(); i++) {
@@ -133,17 +185,13 @@ public class Matrix {
         scaleUpRow(indexRow, new Fraction(scalar));
     }
 
-
     public void scaleDownRow(int indexRow, Fraction scalar) {
-        scaleUpRow(indexRow, scalar.getMulInverse());
+        scaleUpRow(indexRow, scalar.getMultiplicativeInverse());
     }
 
     public void scaleDownRow(int indexRow, int scalar) {
-        scaleDownRow(indexRow, (new Fraction(scalar)).getMulInverse());
+        scaleUpRow(indexRow, (new Fraction(scalar)).getMultiplicativeInverse());
     }
-
-    /*
-
 
     public void normaliseRow(int rowIndex, int normalColumnIndex) {
         if (rowIndex >= numRows()) {
@@ -152,8 +200,9 @@ public class Matrix {
             throw new IllegalArgumentException("Column index out of bounds");
         }
 
-        multiplyRow(rowIndex, getEntry(rowIndex, normalColumnIndex).getMulInverse());
+        scaleDownRow(rowIndex, getEntry(rowIndex, normalColumnIndex));
     }
+
     public Fraction[] getNormalisedRow(int rowIndex, int normalColumnIndex) {
         if (rowIndex >= numRows()) {
             throw new IllegalArgumentException("Row index out of bounds");
@@ -161,33 +210,28 @@ public class Matrix {
             throw new IllegalArgumentException("Column index out of bounds");
         }
 
-        Fraction normalScalar = getEntry(rowIndex, normalColumnIndex).getMulInverse();
         Fraction[] normalisedRow = new Fraction[numColumns()];
         for (int i = 0; i < numColumns(); i++) {
-            normalisedRow[i] = Fraction.multiply(getEntry(rowIndex, i), normalScalar);
+            normalisedRow[i] = Fraction.divide(getEntry(rowIndex, i), matrix[rowIndex][normalColumnIndex]);
         }
         return normalisedRow;
     }
 
     public void clearColumn(int rowToUse, int scalarColumn) {
-        if (rowToUse >= numRows()) {
+        if (rowToUse >= numRows) {
             throw new IllegalArgumentException("Row index out of bounds");
-        } else if (scalarColumn >= numColumns()) {
+        } else if (scalarColumn >= numCols) {
             throw new IllegalArgumentException("Column index out of bounds");
         }
 
         normaliseRow(rowToUse, scalarColumn);
 
-        for (int i = 0; i < numRows(); i++) {
-            if (i != rowToUse && !getEntry(i, scalarColumn).isZero()) {
-                Fraction scalar = getEntry(i, scalarColumn).getAddInverse();
-                Fraction[] scalarRow = getMultipliedRow(rowToUse, scalar);
-                Fraction[] summedRows = addRows(getRow(i), scalarRow);
-                setRow(i, summedRows);
+        for (int i = 0; i < numRows; i++) {
+            if (i != rowToUse && !matrix[rowToUse][scalarColumn].isZero()) {
+                subtractRowScaled(i, rowToUse, matrix[i][scalarColumn]);
             }
         }
     }
-    */
 
     public void printRow(int rowIndex) {
         System.out.print("( " + getEntry(rowIndex, 0));
