@@ -2,10 +2,13 @@ package src;
 
 public class Matrix {
 
-    private final Fraction[][] matrix;
-    private final int numRows;
-    private final int numCols;
+    private Fraction[][] matrix;
+    int numRows;
+    int numCols;
 
+    /**
+     * Constructors
+     */
     public Matrix(int numRows, int numCols, Fraction defaultVal) {
         this.numRows = numRows;
         this.numCols = numCols;
@@ -23,7 +26,6 @@ public class Matrix {
     public Matrix(Fraction[][] matrix) {
         numRows = matrix.length;
         numCols = matrix[0].length;
-
         this.matrix = new Fraction[numRows][numCols];
 
         for (int i = 0; i < numRows; i++) {
@@ -31,6 +33,45 @@ public class Matrix {
         }
     }
 
+    public Matrix(double[][] matrix, int decimalPrec) {
+        numRows = matrix.length;
+        numCols = matrix[0].length;
+        this.matrix = new Fraction[numRows][numCols];
+
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                this.matrix[i][j] = new Fraction(matrix[i][j], decimalPrec);
+            }
+        }
+    }
+
+    public Matrix(float[][] matrix, int decimalPrec) {
+        numRows = matrix.length;
+        numCols = matrix[0].length;
+        this.matrix = new Fraction[numRows][numCols];
+
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                this.matrix[i][j] = new Fraction(matrix[i][j], decimalPrec);
+            }
+        }
+    }
+
+    public Matrix(int[][] matrix) {
+        numRows = matrix.length;
+        numCols = matrix[0].length;
+        this.matrix = new Fraction[numRows][numCols];
+
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                this.matrix[i][j] = new Fraction(matrix[i][j]);
+            }
+        }
+    }
+
+    /**
+     * Getters and Helpers
+     */
     public int numRows() {return numRows;}
 
     public int numColumns() {return numCols;}
@@ -233,6 +274,80 @@ public class Matrix {
         }
     }
 
+    /**
+     * Multiplication
+     */
+
+    public static Matrix multiply(Matrix a, Matrix b) {
+        if (a.numCols != b.numRows) {
+            throw new IllegalArgumentException("Matrix a needs to have the same number of columns as Matrix b has rows");
+        }
+
+        Fraction[][] newMatrix = new Fraction[a.numRows][b.numCols];
+        for (int i = 0; i < a.numRows; i++) {
+            for (int j = 0; j < b.numCols; j++) {
+                Fraction sum = new Fraction(0);
+                for (int k = 0; k < a.numCols; k++) {
+                    sum.add(Fraction.multiply(a.getEntry(i, k), b.getEntry(k, j)));
+                }
+                newMatrix[i][j] = sum.getValue();
+            }
+        }
+        return new Matrix(newMatrix);
+    }
+
+    public void multiply(Matrix m) {
+        if (numCols != m.numRows) {
+            throw new IllegalArgumentException("This matrix needs to have the same number of columns as Matrix m has rows");
+        }
+
+        Fraction[][] newMatrix = new Fraction[numRows][m.numCols];
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < m.numCols; j++) {
+                Fraction sum = new Fraction(0);
+                for (int k = 0; k < numCols; k++) {
+                    sum.add(Fraction.multiply(getEntry(i, k), m.getEntry(k, j)));
+                }
+                newMatrix[i][j] = sum.getValue();
+            }
+        }
+        matrix = newMatrix;
+        numCols = m.numCols;
+    }
+
+    /**
+     * Addition
+     */
+
+    public static Matrix add(Matrix a, Matrix b) {
+        if (a.numRows != b.numRows || a.numCols != b.numCols) {
+            throw new IllegalArgumentException("Matrices a and b need to have the same dimensions for addition to be possible");
+        }
+
+        Fraction[][] newMatrix = new Fraction[a.numRows][a.numCols];
+        for (int i = 0; i < a.numRows; i++) {
+            for (int j = 0; j < a.numCols; j++) {
+                newMatrix[i][j] = Fraction.add(a.getEntry(i, j), b.getEntry(i, j));
+            }
+        }
+        return new Matrix(newMatrix);
+    }
+
+    public void add(Matrix m) {
+        if (numRows != m.numRows || numCols != m.numCols) {
+            throw new IllegalArgumentException("Matrix m need to have the same dimensions for addition to be possible");
+        }
+
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                setEntry(i, j, Fraction.add(getEntry(i, j), m.getEntry(i, j)));
+            }
+        }
+    }
+
+    /**
+     * Print
+     */
     public void printRow(int rowIndex) {
         System.out.print("( " + getEntry(rowIndex, 0));
         for (int i = 1; i < numColumns(); i++) {
@@ -241,9 +356,23 @@ public class Matrix {
         System.out.print(" )\n");
     }
 
+    public void printRowAsDecimal(int rowIndex) {
+        System.out.printf("( %.3f", getEntry(rowIndex, 0).doubleValue());
+        for (int i = 1; i < numColumns(); i++) {
+            System.out.printf(" , %.3f", getEntry(rowIndex, i).doubleValue());
+        }
+        System.out.print(" )\n");
+    }
+
     public void print() {
         for (int i = 0; i < numRows(); i++) {
             printRow(i);
+        }
+    }
+
+    public void printAsDecimal() {
+        for (int i = 0; i < numRows(); i++) {
+            printRowAsDecimal(i);
         }
     }
 }

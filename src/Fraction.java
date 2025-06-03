@@ -4,6 +4,10 @@ public class Fraction {
     private int numerator;
     private int denominator;
 
+    /**
+     * Constructors
+     */
+
     public Fraction(int numerator, int denominator) {
         if (denominator == 0) {throw new IllegalArgumentException("Zero denominator");}
 
@@ -16,6 +20,31 @@ public class Fraction {
         this.numerator = numerator;
         denominator = 1;
     }
+
+    public Fraction (float value, int decimalPrec) {
+        this.denominator = 1;
+        for (int i = 0; i < decimalPrec; i++) {
+            denominator *= 10;
+            value *= 10;
+        }
+        this.numerator = Math.round(value);
+        simplify();
+    }
+
+    public Fraction (double value, int decimalPrec) {
+        this.denominator = 1;
+        for (int i = 0; i < decimalPrec; i++) {
+            denominator *= 10;
+            value *= 10;
+        }
+        this.numerator = (int) Math.round(value);
+        simplify();
+    }
+
+
+    /**
+     * Helper methods
+     */
 
     public int sign() {
         return (numerator == 0) ? 0 : (numerator / Math.abs(numerator));
