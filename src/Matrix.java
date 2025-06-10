@@ -144,6 +144,8 @@ public class Matrix {
     }
 
     public void swapRows(int indexRowA, int indexRowB) {
+        if (indexRowA == indexRowB) return;
+
         Fraction[] temp = new Fraction[numCols];
 
         System.arraycopy(matrix[indexRowA], 0, temp, 0, numCols);

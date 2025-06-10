@@ -1,8 +1,19 @@
 package src;
 
 public class Fraction {
+    /**
+     * Instance variables
+     */
     private int numerator;
     private int denominator;
+
+    /**
+     * Constants
+     */
+    public static final Fraction ZERO = new Fraction(0);
+    public static final Fraction ONE = new Fraction(1);
+    public static final Fraction MINUS_ONE = new Fraction(-1);
+
 
     /**
      * Constructors
@@ -41,18 +52,16 @@ public class Fraction {
         simplify();
     }
 
-
     /**
      * Helper methods
      */
-
     public int sign() {
         return (numerator == 0) ? 0 : (numerator / Math.abs(numerator));
     }
 
-    int getNumerator() {return numerator;}
+    public int getNumerator() {return numerator;}
 
-    int getDenominator() {return denominator;}
+    public int getDenominator() {return denominator;}
 
     public Fraction getValue() {return new Fraction(numerator, denominator);}
 
@@ -176,11 +185,14 @@ public class Fraction {
     }
 
     public Fraction pow(int power) {
+        if (power == 0) return new Fraction(1);
+
         int numerator = 1, denominator = 1;
-        for (int i = 0; i < power; i++) {
+        for (int i = 0; i < Math.abs(power); i++) {
             numerator *= this.getNumerator();
             denominator *= this.getDenominator();
         }
-        return new Fraction(numerator, denominator);
+
+        return (power < 0) ? new Fraction(denominator, numerator) : new Fraction(numerator, denominator);
     }
 }
