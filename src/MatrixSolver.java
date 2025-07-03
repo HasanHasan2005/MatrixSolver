@@ -69,6 +69,17 @@ public class MatrixSolver {
         }
     }
 
+    /*
+    private int[] getVals(String equation) {
+        int i = 0, j = 0;
+
+
+    }*/
+
+    public void getSolutions(String[] equations) {
+
+    }
+
     public static void main(String[] args) {
 
         MatrixSolver ms = new MatrixSolver();
@@ -81,14 +92,17 @@ public class MatrixSolver {
                 {3, 0, 15, 3}});
 
 
-        m1.print();
-        System.out.println();
+        //m1.print();
+        //System.out.println();
 
-        ms.bringToRREF(m1);
+        //ms.bringToRREF(m1);
 
-        m1.printAsDecimal();
+        //m1.printAsDecimal();
 
-        Fraction f = new Fraction(3.35f, 2);
+        //Fraction f = new Fraction(3.35f, 2);
+        //System.out.println(f);
+
+        Fraction f = new Fraction("44");
         System.out.println(f);
     }
 }

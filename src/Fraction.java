@@ -8,7 +8,7 @@ public class Fraction {
     private int denominator;
 
     /**
-     * Constants
+     * Constant Variables
      */
     public static final Fraction ZERO = new Fraction(0);
     public static final Fraction ONE = new Fraction(1);
@@ -49,6 +49,15 @@ public class Fraction {
             value *= 10;
         }
         this.numerator = (int) Math.round(value);
+        simplify();
+    }
+
+    public Fraction(String frac) {
+        int div = 0;
+        while (div < frac.length() && frac.charAt(div) != '/') div++;
+
+        numerator = Integer.parseInt(frac.substring(0, div));
+        denominator = (div == frac.length()) ? 1 : Integer.parseInt(frac.substring(div + 1));
         simplify();
     }
 
