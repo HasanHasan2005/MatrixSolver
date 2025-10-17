@@ -3,8 +3,8 @@ package src;
 public class Matrix {
 
     private Fraction[][] matrix;
-    int numRows;
-    int numCols;
+    private int numRows;
+    private int numCols;
 
     /**
      * Constructors
@@ -70,11 +70,11 @@ public class Matrix {
     }
 
     /**
-     * Getters and Helpers
+     * Getters
      */
     public int numRows() {return numRows;}
 
-    public int numColumns() {return numCols;}
+    public int numCols() {return numCols;}
 
     public int numEntries() {return numRows * numCols;}
 
@@ -100,32 +100,15 @@ public class Matrix {
         return temp;
     }
 
-    public Fraction[] getRowScaledUp(int rowNum, Fraction scalar) {
-        Fraction[] temp = new Fraction[numRows];
-        for (int i = 0; i < numCols; i++) {
-            temp[i] = Fraction.multiply(matrix[rowNum][i], scalar);
-        }
-        return temp;
-    }
-
-    public Fraction[] getRowScaledUp(int rowNum, int scalar) {
-        return getRowScaledUp(rowNum, new Fraction(scalar));
-    }
-
-    public Fraction[] getRowScaledDown(int rowNum, Fraction scalar) {
-        return getRowScaledUp(rowNum, scalar.getMultiplicativeInverse());
-    }
-
-    public Fraction[] getRowScaledDown(int rowNum, int scalar) {
-        return getRowScaledUp(rowNum, (new Fraction(scalar)).getMultiplicativeInverse());
-    }
-
     public Fraction getEntry(int rowNum, int columnNum) {
         return matrix[rowNum][columnNum];
     }
 
+    /**
+     * Setters
+     */
     public void setRow(int rowIndex, Fraction[] row) {
-        if (row.length != numColumns()) {
+        if (row.length != numCols()) {
             throw new IllegalArgumentException("Invalid row length");
         } else if (rowIndex >= numRows() || rowIndex < 0) {
             throw new IllegalArgumentException("Row index out of bounds");
@@ -137,24 +120,14 @@ public class Matrix {
     public void setEntry(int rowIndex, int columnIndex, Fraction entry) {
         if (rowIndex >= numRows() || rowIndex < 0) {
             throw new IllegalArgumentException("Row index out of bounds");
-        } else if (columnIndex >= numColumns() || columnIndex < 0) {
+        } else if (columnIndex >= numCols() || columnIndex < 0) {
             throw new IllegalArgumentException("Column index out of bounds");
         }
         matrix[rowIndex][columnIndex] = entry;
     }
 
-    public void swapRows(int indexRowA, int indexRowB) {
-        if (indexRowA == indexRowB) return;
-
-        Fraction[] temp = new Fraction[numCols];
-
-        System.arraycopy(matrix[indexRowA], 0, temp, 0, numCols);
-        System.arraycopy(matrix[indexRowB], 0, matrix[indexRowA], 0, numCols);
-        System.arraycopy(temp, 0, matrix[indexRowB], 0, numCols);
-    }
-
     /**
-     * Add
+     * Row Addition
      */
 
     public void addRowScaled(int indexRowChanged, Fraction[] rowToAdd, Fraction scalar) {
@@ -187,7 +160,7 @@ public class Matrix {
     }
 
     /**
-     * Subtract rows
+     * Row Subtraction
      */
 
     public void subtractRowScaled(int indexRowChanged, Fraction[] rowToAdd, Fraction scalar) {
@@ -215,11 +188,11 @@ public class Matrix {
     }
 
     /**
-     * Scaling Row
+     * Row Scalars
      */
 
     public void scaleUpRow(int indexRow, Fraction scalar) {
-        for (int i = 0; i < numColumns(); i++) {
+        for (int i = 0; i < numCols(); i++) {
             matrix[indexRow][i].multiply(scalar);
         }
     }
@@ -239,45 +212,53 @@ public class Matrix {
     public void normaliseRow(int rowIndex, int normalColumnIndex) {
         if (rowIndex >= numRows()) {
             throw new IllegalArgumentException("Row index out of bounds");
-        } else if (normalColumnIndex >= numColumns()) {
+        } else if (normalColumnIndex >= numCols()) {
             throw new IllegalArgumentException("Column index out of bounds");
         }
 
         scaleDownRow(rowIndex, getEntry(rowIndex, normalColumnIndex));
     }
 
+    /**
+     * Scaled-Row Getters
+     */
+
+    public Fraction[] getRowScaledUp(int rowNum, Fraction scalar) {
+        Fraction[] temp = new Fraction[numRows];
+        for (int i = 0; i < numCols; i++) {
+            temp[i] = Fraction.multiply(matrix[rowNum][i], scalar);
+        }
+        return temp;
+    }
+
+    public Fraction[] getRowScaledUp(int rowNum, int scalar) {
+        return getRowScaledUp(rowNum, new Fraction(scalar));
+    }
+
+    public Fraction[] getRowScaledDown(int rowNum, Fraction scalar) {
+        return getRowScaledUp(rowNum, scalar.getMultiplicativeInverse());
+    }
+
+    public Fraction[] getRowScaledDown(int rowNum, int scalar) {
+        return getRowScaledUp(rowNum, (new Fraction(scalar)).getMultiplicativeInverse());
+    }
+
     public Fraction[] getNormalisedRow(int rowIndex, int normalColumnIndex) {
         if (rowIndex >= numRows()) {
             throw new IllegalArgumentException("Row index out of bounds");
-        } else if (normalColumnIndex >= numColumns()) {
+        } else if (normalColumnIndex >= numCols()) {
             throw new IllegalArgumentException("Column index out of bounds");
         }
 
-        Fraction[] normalisedRow = new Fraction[numColumns()];
-        for (int i = 0; i < numColumns(); i++) {
+        Fraction[] normalisedRow = new Fraction[numCols()];
+        for (int i = 0; i < numCols(); i++) {
             normalisedRow[i] = Fraction.divide(getEntry(rowIndex, i), matrix[rowIndex][normalColumnIndex]);
         }
         return normalisedRow;
     }
 
-    public void clearColumn(int rowToUse, int scalarColumn) {
-        if (rowToUse >= numRows) {
-            throw new IllegalArgumentException("Row index out of bounds");
-        } else if (scalarColumn >= numCols) {
-            throw new IllegalArgumentException("Column index out of bounds");
-        }
-
-        normaliseRow(rowToUse, scalarColumn);
-
-        for (int i = 0; i < numRows; i++) {
-            if (i != rowToUse && !matrix[rowToUse][scalarColumn].isZero()) {
-                subtractRowScaled(i, rowToUse, matrix[i][scalarColumn]);
-            }
-        }
-    }
-
     /**
-     * Multiplication
+     * Matrix Multiplication
      */
 
     public static Matrix multiply(Matrix a, Matrix b) {
@@ -300,7 +281,7 @@ public class Matrix {
 
     public void multiply(Matrix m) {
         if (numCols != m.numRows) {
-            throw new IllegalArgumentException("This matrix needs to have the same number of columns as Matrix m has rows");
+            throw new IllegalArgumentException("Invalid dimensions for Matrix Multiplication");
         }
 
         Fraction[][] newMatrix = new Fraction[numRows][m.numCols];
@@ -318,12 +299,12 @@ public class Matrix {
     }
 
     /**
-     * Addition
+     * Matrix Addition
      */
 
     public static Matrix add(Matrix a, Matrix b) {
         if (a.numRows != b.numRows || a.numCols != b.numCols) {
-            throw new IllegalArgumentException("Matrices a and b need to have the same dimensions for addition to be possible");
+            throw new IllegalArgumentException("Matrices have different dimensions");
         }
 
         Fraction[][] newMatrix = new Fraction[a.numRows][a.numCols];
@@ -348,11 +329,102 @@ public class Matrix {
     }
 
     /**
-     * Print
+     * Transpose Functions
+     */
+
+    public void transpose() {
+        Fraction[][] newMatrix = new Fraction[numCols][numRows];
+
+        for (int r = 0; r < numRows; r++) {
+            for (int c = 0; c < numCols; c++) {
+                newMatrix[c][r] = matrix[r][c];
+            }
+        }
+
+        matrix = newMatrix;
+
+        int temp = numCols;
+        numCols = numRows;
+        numRows = temp;
+    }
+
+    public static Matrix getTranspose(Matrix m) {
+        Matrix res = new Matrix(m.numCols(), m.numRows(), new Fraction(0));
+
+        for (int r = 0; r < m.numRows(); r++) {
+            for (int c = 0; c < m.numCols(); c++) {
+                res.setEntry(c, r, m.getEntry(r, c));
+            }
+        }
+
+        return res;
+    }
+
+    /**
+     * Matrix Manipulation
+     */
+
+    public void swapRows(int indexRowA, int indexRowB) {
+        if (indexRowA == indexRowB) return;
+
+        Fraction[] temp = new Fraction[numCols];
+
+        System.arraycopy(matrix[indexRowA], 0, temp, 0, numCols);
+        System.arraycopy(matrix[indexRowB], 0, matrix[indexRowA], 0, numCols);
+        System.arraycopy(temp, 0, matrix[indexRowB], 0, numCols);
+    }
+
+    public void clearColumn(int rowToUse, int scalarColumn) {
+        if (rowToUse >= numRows) {
+            throw new IllegalArgumentException("Row index out of bounds");
+        } else if (scalarColumn >= numCols) {
+            throw new IllegalArgumentException("Column index out of bounds");
+        }
+
+        normaliseRow(rowToUse, scalarColumn);
+
+        for (int i = 0; i < numRows; i++) {
+            if (i != rowToUse && !matrix[rowToUse][scalarColumn].isZero()) {
+                subtractRowScaled(i, rowToUse, matrix[i][scalarColumn]);
+            }
+        }
+    }
+
+    public void bringToRREF() {
+        int col = 0;
+        int row = 0;
+
+        while (col < numCols && row < numRows) {
+            int row_to_use = -1;
+
+            if (getEntry(row, col).isZero()) {
+                for (int i = row + 1; i < numRows; i++) {
+                    if (!getEntry(i, col).isZero()) {
+                        row_to_use = i;
+                        break;
+                    }
+                }
+            } else {
+                row_to_use = row;
+            }
+
+            if (row_to_use != -1) {
+                if (row_to_use != row) {
+                    swapRows(row, row_to_use);
+                }
+                clearColumn(row, col);
+                row++;
+            }
+            col++;
+        }
+    }
+
+    /**
+     * Printing Matrices
      */
     public void printRow(int rowIndex) {
         System.out.print("( " + getEntry(rowIndex, 0));
-        for (int i = 1; i < numColumns(); i++) {
+        for (int i = 1; i < numCols(); i++) {
             System.out.print(" , " + getEntry(rowIndex, i));
         }
         System.out.print(" )\n");
@@ -360,7 +432,7 @@ public class Matrix {
 
     public void printRowAsDecimal(int rowIndex) {
         System.out.printf("( %.3f", getEntry(rowIndex, 0).doubleValue());
-        for (int i = 1; i < numColumns(); i++) {
+        for (int i = 1; i < numCols(); i++) {
             System.out.printf(" , %.3f", getEntry(rowIndex, i).doubleValue());
         }
         System.out.print(" )\n");
@@ -376,5 +448,16 @@ public class Matrix {
         for (int i = 0; i < numRows(); i++) {
             printRowAsDecimal(i);
         }
+    }
+
+
+    public static void main(String[] args) {
+        Matrix m1 = new Matrix(
+                new int[][] {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 15, 16}}
+        );
+
+        m1.bringToRREF();
+        m1.transpose();
+        m1.print();
     }
 }

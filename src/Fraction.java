@@ -56,6 +56,8 @@ public class Fraction {
         int div = 0;
         while (div < frac.length() && frac.charAt(div) != '/') div++;
 
+        if (div == 0 || div == frac.length() - 1) throw new IllegalArgumentException("No numerator or denominator entered");
+
         numerator = Integer.parseInt(frac.substring(0, div));
         denominator = (div == frac.length()) ? 1 : Integer.parseInt(frac.substring(div + 1));
         simplify();
